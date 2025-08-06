@@ -1,14 +1,18 @@
 package org.review.Database;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface DatabaseStrategy {
-    void startUp() throws Exception;
-    void connect() throws SQLException;
-    void close() throws SQLException;
-    boolean isConnected() throws SQLException;
-    void seed() throws Exception;
-    boolean executeQuery(String query) throws SQLException;
+    void startUp();
+    void connect();
+    void close();
+    boolean isConnected() ;
+    void seed();
+    ResultSet executeQuery(String query);
+    public void closeResultSet(ResultSet rs);
+    public Connection getConnection();
 
 
 

@@ -28,7 +28,7 @@ public class Logger {
     }
 
     public void error(String message) {
-        if (logLevel == LogLevel.ERROR || logLevel == LogLevel.INFO) {
+        if (logLevel == LogLevel.ERROR || logLevel == LogLevel.INFO || logLevel == LogLevel.DEBUG) {
             System.err.println(getCurrentTime() + " - [ERROR] " + message);
         }
     }

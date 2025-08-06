@@ -86,6 +86,7 @@ public class QueryBuilder {
             orderByClause(query);
         }
 
+
         return query.toString();
     }
 

@@ -2,18 +2,17 @@ package org.review.Database;
 
 import org.review.Logger.Logger;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class SQLite implements DatabaseStrategy {
 
     private String databaseUrl;
     private String seed;
     private Connection connection;
+    private Statement currentStatement;
 
     public SQLite(String databaseUrl, String seed) {
         this.databaseUrl = databaseUrl;
@@ -21,11 +20,10 @@ public class SQLite implements DatabaseStrategy {
         connection = null;
     }
 
-    public void startUp() throws Exception {
+    public void startUp() {
         connect();
         if (!isConnected()) {
             Logger.getInstance().error("Failed to connect to the database at " + databaseUrl);
-            throw new Exception("Failed to connect to the database at " + databaseUrl);
         }
         seed();
     }
@@ -49,6 +47,10 @@ public class SQLite implements DatabaseStrategy {
                 connection.close();
                 Logger.getInstance().info("Connection to SQLite has been closed.");
             }
+            if (currentStatement != null && !currentStatement.isClosed()) {
+                currentStatement.close();
+                Logger.getInstance().info("Current statement has been closed.");
+            }
         } catch (SQLException e) {
             Logger.getInstance().error("Error closing connection to SQLite: " + e.getMessage());
         }
@@ -56,6 +58,7 @@ public class SQLite implements DatabaseStrategy {
 
     public boolean isConnected() {
         try {
+            Logger.getInstance().info("Checking connection status...");
             return connection != null && !connection.isClosed();
         } catch (SQLException e) {
             Logger.getInstance().error("Error checking connection status: " + e.getMessage());
@@ -63,14 +66,19 @@ public class SQLite implements DatabaseStrategy {
         }
     }
 
-    public void seed() throws Exception {
+    public void seed() {
         InputStream input = getClass().getClassLoader().getResourceAsStream(seed);
         if (isSeedEmpty(input) && !seed.isEmpty()) {
             Logger.getInstance().error("Seed file is empty or not found: " + seed);
             return;
         }
 
-        String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        String sql = "";
+        try {
+            sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         String[] statements = sql.split(";");
 
         if (connection == null) {
@@ -79,7 +87,7 @@ public class SQLite implements DatabaseStrategy {
 
         try (Statement stmt = connection.createStatement()) {
             stmt.execute("PRAGMA foreign_keys = ON;");
-            for (String statement : statements){
+            for (String statement : statements) {
                 statement = statement.trim();
                 if (!statement.isEmpty()) {
                     stmt.execute(statement);
@@ -92,20 +100,52 @@ public class SQLite implements DatabaseStrategy {
         }
 
     }
-    private boolean isSeedEmpty(InputStream input) throws Exception {
-        return input == null || input.available() == 0;
+
+    private boolean isSeedEmpty(InputStream input) {
+        try {
+            return input == null || input.available() == 0;
+        } catch (Exception e) {
+            Logger.getInstance().error("Error checking seed file: " + e.getMessage());
+            return true;
+        }
     }
 
 
-    public boolean executeQuery(String query) throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connect();
-        }
-        try (Statement stmt = connection.createStatement()) {
-            return stmt.execute(query);
+    public ResultSet executeQuery(String query) {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connect();
+                Logger.getInstance().info("Reconnected to the database.");
+            }
+
+            if (currentStatement != null && !currentStatement.isClosed()) {
+                currentStatement.close();
+            }
+            currentStatement = connection.createStatement();
+            return currentStatement.executeQuery(query);
+
         } catch (SQLException e) {
-            Logger.getInstance().error("Error executing query: " + e.getMessage());
-            return false;
+            Logger.getInstance().error("Error checking connection status: " + e.getMessage());
+            return null;
         }
+    }
+
+    public void closeResultSet(ResultSet rs) {
+        try {
+
+
+            if (rs != null) {
+                rs.close();
+            }
+            if (currentStatement != null && !currentStatement.isClosed()) {
+                currentStatement.close();
+            }
+        } catch (SQLException e) {
+            Logger.getInstance().error("Error closing ResultSet: " + e.getMessage());
+        }
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 }
