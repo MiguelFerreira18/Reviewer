@@ -15,10 +15,21 @@
     </properties>
 
     <dependencies>
+
+        <!--SQLITE DEP-->
         <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.49.1.0</version>
         </dependency>
+
+        <!--JUNIT-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.13.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

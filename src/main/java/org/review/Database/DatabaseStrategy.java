@@ -8,6 +8,7 @@ public interface DatabaseStrategy {
     void close() throws SQLException;
     boolean isConnected() throws SQLException;
     void seed() throws Exception;
+    boolean executeQuery(String query) throws SQLException;
 
 
 

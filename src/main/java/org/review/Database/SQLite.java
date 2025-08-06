@@ -92,8 +92,20 @@ public class SQLite implements DatabaseStrategy {
         }
 
     }
-
     private boolean isSeedEmpty(InputStream input) throws Exception {
         return input == null || input.available() == 0;
+    }
+
+
+    public boolean executeQuery(String query) throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            connect();
+        }
+        try (Statement stmt = connection.createStatement()) {
+            return stmt.execute(query);
+        } catch (SQLException e) {
+            Logger.getInstance().error("Error executing query: " + e.getMessage());
+            return false;
+        }
     }
 }
