@@ -61,6 +61,16 @@ public class QueryBuilder {
         return this;
     }
 
+
+    private void orderByClause(StringBuilder query) {
+        query.append(" ORDER BY ");
+        List<String> orderBys = new ArrayList<>();
+        for (OrderByClause clause : orderByClauses) {
+            orderBys.add(clause.column + (clause.ascending ? " ASC" : " DESC"));
+        }
+        query.append(String.join(", ", orderBys));
+    }
+
     public String build() {
         if (fromTable == null) {
             throw new IllegalStateException("FROM clause is required");
@@ -89,16 +99,6 @@ public class QueryBuilder {
 
         return query.toString();
     }
-
-    private void orderByClause(StringBuilder query) {
-        query.append(" ORDER BY ");
-        List<String> orderBys = new ArrayList<>();
-        for (OrderByClause clause : orderByClauses) {
-            orderBys.add(clause.column + (clause.ascending ? " ASC" : " DESC"));
-        }
-        query.append(String.join(", ", orderBys));
-    }
-
     private void joinClause(StringBuilder query) {
         for (JoinClause join : joins) {
             query.append(" ").append(join.type)

@@ -1,0 +1,88 @@
+CREATE TABLE IF NOT EXISTS tag
+(
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag_name   VARCHAR(64) NOT NULL UNIQUE,
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS review
+(
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    title      VARCHAR(64)   NOT NULL,
+    content    VARCHAR(1024) NOT NULL,
+    rating     INT           NOT NULL CHECK (rating >= 0 AND rating <= 10),
+    created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS review_tag
+(
+    review_id INTEGER NOT NULL,
+    tag_id    INTEGER NOT NULL,
+    PRIMARY KEY (review_id, tag_id),
+    FOREIGN KEY (review_id) REFERENCES review (id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tag (id) ON DELETE CASCADE
+);
+
+INSERT OR IGNORE INTO tag (tag_name)
+VALUES ('Game'),
+       ('Book'),
+       ('Movie'),
+       ('Music'),
+       ('TV Show'),
+       ('Anime'),
+       ('Serie'),
+       ('FPS'),
+       ('RPG'),
+       ('Strategy'),
+       ('Action'),
+       ('Adventure'),
+       ('Horror'),
+       ('Comedy'),
+       ('Indie'),
+       ('Simulation'),
+       ('Puzzle'),
+       ('Platformer'),
+       ('Racing'),
+       ('Sports'),
+       ('sci-fi'),
+       ('Fantasy'),
+       ('Mystery'),
+       ('Thriller'),
+       ('Documentary'),
+       ('Biography'),
+       ('Romance'),
+       ('Historical'),
+       ('Western'),
+       ('Superhero'),
+       ('Animation'),
+       ('Family'),
+       ('Musical'),
+       ('Crime'),
+       ('War'),
+       ('Martial Arts'),
+       ('Documentary Series'),
+       ('Reality Show'),
+       ('Talk Show'),
+       ('Game Show'),
+       ('Rock'),
+       ('Pop'),
+       ('Hip Hop'),
+       ('Jazz'),
+       ('Classical'),
+       ('Country'),
+       ('Electronic'),
+       ('Reggae'),
+       ('Blues'),
+       ('Folk'),
+       ('Metal'),
+       ('Punk'),
+       ('R&B'),
+       ('K-Pop'),
+       ('Power Metal'),
+       ('lo-fi'),
+       ('Indie Rock'),
+       ('Progressive rock'),
+       ('Psychedelic rock'),
+       ('Early Access');

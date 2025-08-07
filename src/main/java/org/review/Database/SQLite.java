@@ -10,13 +10,11 @@ import java.sql.*;
 public class SQLite implements DatabaseStrategy {
 
     private String databaseUrl;
-    private String seed;
     private Connection connection;
     private Statement currentStatement;
 
-    public SQLite(String databaseUrl, String seed) {
+    public SQLite(String databaseUrl) {
         this.databaseUrl = databaseUrl;
-        this.seed = seed;
         connection = null;
     }
 
@@ -25,7 +23,7 @@ public class SQLite implements DatabaseStrategy {
         if (!isConnected()) {
             Logger.getInstance().error("Failed to connect to the database at " + databaseUrl);
         }
-        seed();
+//        seed();
     }
 
     public void connect() {
@@ -66,40 +64,40 @@ public class SQLite implements DatabaseStrategy {
         }
     }
 
-    public void seed() {
-        InputStream input = getClass().getClassLoader().getResourceAsStream(seed);
-        if (isSeedEmpty(input) && !seed.isEmpty()) {
-            Logger.getInstance().error("Seed file is empty or not found: " + seed);
-            return;
-        }
-
-        String sql = "";
-        try {
-            sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String[] statements = sql.split(";");
-
-        if (connection == null) {
-            this.connect();
-        }
-
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute("PRAGMA foreign_keys = ON;");
-            for (String statement : statements) {
-                statement = statement.trim();
-                if (!statement.isEmpty()) {
-                    stmt.execute(statement);
-                }
-            }
-            Logger.getInstance().info("All SQL statements executed successfully.");
-        } catch (SQLException e) {
-            Logger.getInstance().error("Error executing SQL statements: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-    }
+//    public void seed() {
+//        InputStream input = getClass().getClassLoader().getResourceAsStream(migrationFolder);
+//        if (isSeedEmpty(input) && !migrationFolder.isEmpty()) {
+//            Logger.getInstance().error("Seed file is empty or not found: " + migrationFolder);
+//            return;
+//        }
+//
+//        String sql = "";
+//        try {
+//            sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        String[] statements = sql.split(";");
+//
+//        if (connection == null) {
+//            this.connect();
+//        }
+//
+//        try (Statement stmt = connection.createStatement()) {
+//            stmt.execute("PRAGMA foreign_keys = ON;");
+//            for (String statement : statements) {
+//                statement = statement.trim();
+//                if (!statement.isEmpty()) {
+//                    stmt.execute(statement);
+//                }
+//            }
+//            Logger.getInstance().info("All SQL statements executed successfully.");
+//        } catch (SQLException e) {
+//            Logger.getInstance().error("Error executing SQL statements: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     private boolean isSeedEmpty(InputStream input) {
         try {
@@ -111,7 +109,7 @@ public class SQLite implements DatabaseStrategy {
     }
 
 
-    public ResultSet executeQuery(String query) {
+    public ResultSet executeQuery(String query, Execution execution) {
         try {
             if (connection == null || connection.isClosed()) {
                 connect();
@@ -122,6 +120,11 @@ public class SQLite implements DatabaseStrategy {
                 currentStatement.close();
             }
             currentStatement = connection.createStatement();
+            if (execution == Execution.UPDATE) {
+                currentStatement.executeUpdate(query);
+                Logger.getInstance().info("Executed update query: " + query);
+                return null;
+            }
             return currentStatement.executeQuery(query);
 
         } catch (SQLException e) {

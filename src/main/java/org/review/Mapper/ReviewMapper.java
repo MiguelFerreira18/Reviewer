@@ -1,6 +1,7 @@
 package org.review.Mapper;
 
 import org.review.Database.DatabaseStrategy;
+import org.review.Database.Execution;
 import org.review.Database.QueryBuilder;
 import org.review.Logger.Logger;
 import org.review.Model.Review;
@@ -27,11 +28,10 @@ public class ReviewMapper {
             int rating = rs.getInt("rating");
             Timestamp createdAt = rs.getTimestamp("created_at");
             Timestamp updatedAt = rs.getTimestamp("updated_at");
-            int tagId = rs.getInt("tag_id");
 
-            Tag tag = returnTag(tagId);
+            List<Tag> tags = returnTags(id);
 
-            return new Review(id, title, content, rating, createdAt.toLocalDateTime(), updatedAt.toLocalDateTime(), tag);
+            return new Review(id, title, content, rating, createdAt.toLocalDateTime(), updatedAt.toLocalDateTime(), tags);
 
         } catch (Exception e) {
             Logger.getInstance().error("Error mapping ResultSet to Review: " + e.getMessage());
@@ -39,14 +39,15 @@ public class ReviewMapper {
         }
     }
 
-    private Tag returnTag(int tagId) {
+    private List<Tag> returnTags(int reviewId) {
         QueryBuilder query = new QueryBuilder()
                 .select()
-                .from("tag")
-                .where("id" + " = " + tagId);
-        ResultSet rs = db.executeQuery(query.build());
+                .from("review_tag")
+                .where("review_id = " + reviewId);
+        ResultSet rs = db.executeQuery(query.build(), Execution.READ);
 
-        return new TagMapper().mapToTag(rs);
+        TagMapper tagMapper = new TagMapper();
+        return tagMapper.mapToTags(rs);
     }
 
     public List<Review> mapToReviews(ResultSet rs) {

@@ -9,8 +9,8 @@ public interface DatabaseStrategy {
     void connect();
     void close();
     boolean isConnected() ;
-    void seed();
-    ResultSet executeQuery(String query);
+//    void seed();
+    ResultSet executeQuery(String query,Execution execution);
     public void closeResultSet(ResultSet rs);
     public Connection getConnection();
 

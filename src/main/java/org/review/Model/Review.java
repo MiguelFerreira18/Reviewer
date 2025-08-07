@@ -1,6 +1,8 @@
 package org.review.Model;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Review {
     private int id;
@@ -9,9 +11,9 @@ public class Review {
     private int rating;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Tag tag;
+    private List<Tag> tag;
 
-    public Review(int id, String title, String content, int rating, LocalDateTime createdAt, LocalDateTime updatedAt, Tag tag) {
+    public Review(int id, String title, String content, int rating, LocalDateTime createdAt, LocalDateTime updatedAt, List<Tag> tag) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -21,8 +23,15 @@ public class Review {
         this.tag = tag;
     }
 
-    public Review(int id, String title, String content, int rating, Tag tag) {
+    public Review(int id, String title, String content, int rating, List<Tag> tag) {
         this.id = id;
+        this.title = title;
+        this.content = content;
+        this.rating = rating;
+        this.tag = tag;
+    }
+
+    public Review(String title, String content, int rating,List<Tag> tag) {
         this.title = title;
         this.content = content;
         this.rating = rating;
@@ -76,8 +85,28 @@ public class Review {
         return updatedAt;
     }
 
+    public LocalDateTime updateDateTime() {
+        this.updatedAt = Timestamp.valueOf(LocalDateTime.now()).toLocalDateTime();
+        return this.updatedAt;
+    }
+
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<Tag> getTag() {
+        return tag;
+    }
+
+    public void setTag(List<Tag> tag) {
+        this.tag = tag;
+    }
+
+    public void addTag(Tag tag) {
+        if (this.tag == null) {
+            this.tag = new java.util.ArrayList<>();
+        }
+        this.tag.add(tag);
     }
 
     @Override
