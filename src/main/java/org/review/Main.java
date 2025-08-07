@@ -5,6 +5,7 @@ import org.review.Database.QueryBuilder;
 import org.review.Database.SQLite;
 import org.review.Logger.LogLevel;
 import org.review.Logger.Logger;
+import org.review.Mapper.TagMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,6 +21,7 @@ public class Main {
     public static void main(String[] args) {
 
         DatabaseStrategy db = new SQLite(DB_URL, SEED_FILE);
+        TagMapper tagMapper = new TagMapper();
         try {
             db.startUp();
         } catch (Exception e) {
@@ -28,18 +30,12 @@ public class Main {
         }
         QueryBuilder query = new QueryBuilder().select().from("tag");
 
-        try {
             logger.info(db.isConnected() ? "Database is connected." : "Database is not connected.");
             ResultSet rs = db.executeQuery(query.build());
             logger.info("Query executed: " + query.build());
-            while (rs.next()) {
-                System.out.println("Tag Name: " + rs.getString("tag_name"));
-            }
-            logger.info("Query executed successfully.");
+            logger.info("Mapping results to Tag objects...");
+            logger.debug("Mapping: " + tagMapper.mapToTags(rs));
 
-        } catch (SQLException e) {
-            logger.error("Error creating statement: " + e.getMessage());
-        }
         scanner.nextInt();
     }
 }
