@@ -64,41 +64,6 @@ public class SQLite implements DatabaseStrategy {
         }
     }
 
-//    public void seed() {
-//        InputStream input = getClass().getClassLoader().getResourceAsStream(migrationFolder);
-//        if (isSeedEmpty(input) && !migrationFolder.isEmpty()) {
-//            Logger.getInstance().error("Seed file is empty or not found: " + migrationFolder);
-//            return;
-//        }
-//
-//        String sql = "";
-//        try {
-//            sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        String[] statements = sql.split(";");
-//
-//        if (connection == null) {
-//            this.connect();
-//        }
-//
-//        try (Statement stmt = connection.createStatement()) {
-//            stmt.execute("PRAGMA foreign_keys = ON;");
-//            for (String statement : statements) {
-//                statement = statement.trim();
-//                if (!statement.isEmpty()) {
-//                    stmt.execute(statement);
-//                }
-//            }
-//            Logger.getInstance().info("All SQL statements executed successfully.");
-//        } catch (SQLException e) {
-//            Logger.getInstance().error("Error executing SQL statements: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//
-//    }
-
     private boolean isSeedEmpty(InputStream input) {
         try {
             return input == null || input.available() == 0;
