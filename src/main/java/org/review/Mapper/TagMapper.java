@@ -1,5 +1,6 @@
 package org.review.Mapper;
 
+import org.review.Dto.DisplayTagDTO;
 import org.review.Logger.Logger;
 import org.review.Model.Tag;
 
@@ -37,6 +38,33 @@ public class TagMapper {
             }
         } catch (SQLException e) {
             Logger.getInstance().error("Error mapping ResultSet to List<Tag>: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return tagList;
+    }
+
+    public DisplayTagDTO mapToDisplayTagDTO(ResultSet tag) {
+        try {
+            int id = tag.getInt("id");
+            String name = tag.getString("tag_name");
+
+            return new DisplayTagDTO(id, name);
+        } catch (SQLException e) {
+            Logger.getInstance().error("Error mapping ResultSet to DisplayTagDTO: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+    public List<DisplayTagDTO> mapToDisplayTagDTOs(ResultSet tags) {
+        List<DisplayTagDTO> tagList = new ArrayList<>();
+        try {
+            while (tags.next()) {
+                DisplayTagDTO tag = mapToDisplayTagDTO(tags);
+                if (tag != null) {
+                    tagList.add(tag);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getInstance().error("Error mapping ResultSet to List<DisplayTagDTO>: " + e.getMessage());
             throw new RuntimeException(e);
         }
         return tagList;

@@ -1,6 +1,7 @@
 package org.review.Service;
 
 import org.review.Database.*;
+import org.review.Dto.DisplayTagDTO;
 import org.review.Mapper.TagMapper;
 import org.review.Model.Tag;
 
@@ -19,7 +20,7 @@ public class TagService {
 
     public void addTag(String tagName) {
         CRUDBuilder crudBuilder = new CRUDBuilder();
-        crudBuilder.operation(Operation.INSERT).table("tag").values(tagName);
+        crudBuilder.operation(Operation.INSERT).table("tag").set("tag_name").values(tagName);
         String query = crudBuilder.build();
         try {
             database.executeQuery(query, Execution.UPDATE);
@@ -57,13 +58,28 @@ public class TagService {
 
     public Tag getTagById(int tagId) {
         QueryBuilder queryBuilder = new QueryBuilder()
-                .select("id, tag_name")
+                .select("id, tag_name, created_at, updated_at")
                 .from("tag")
                 .where("id = " + tagId);
         String query = queryBuilder.build();
         try {
             ResultSet rs = database.executeQuery(query, Execution.READ);
             return tagMapper.mapToTag(rs);
+        } catch (Exception e) {
+            System.err.println("Error retrieving tag: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public DisplayTagDTO getDisplayTagById(int tagId) {
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .select("id, tag_name")
+                .from("tag")
+                .where("id = " + tagId);
+        String query = queryBuilder.build();
+        try {
+            ResultSet rs = database.executeQuery(query, Execution.READ);
+            return tagMapper.mapToDisplayTagDTO(rs);
 
         } catch (Exception e) {
             System.err.println("Error retrieving tag: " + e.getMessage());
@@ -71,14 +87,15 @@ public class TagService {
         }
     }
 
-    public List<Tag> getAllTags() {
+    public List<DisplayTagDTO> getAllDisplayTags() {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .select("id, tag_name")
-                .from("tag");
+                .from("tag")
+                .orderBy("id",true);
         String query = queryBuilder.build();
         try {
             ResultSet rs = database.executeQuery(query, Execution.READ);
-            return tagMapper.mapToTags(rs);
+            return tagMapper.mapToDisplayTagDTOs(rs);
         } catch (Exception e) {
             System.err.println("Error retrieving tags: " + e.getMessage());
             return null;

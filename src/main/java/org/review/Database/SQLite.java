@@ -75,6 +75,7 @@ public class SQLite implements DatabaseStrategy {
 
 
     public ResultSet executeQuery(String query, Execution execution) {
+        Logger.getInstance().debug("Executing query: " + query + " with execution type: " + execution);
         try {
             if (connection == null || connection.isClosed()) {
                 connect();

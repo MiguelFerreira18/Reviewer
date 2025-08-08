@@ -20,6 +20,10 @@ public class CRUDBuilder {
         return this;
     }
 
+    public CRUDBuilder set(String column) {
+        setClause.add(column);
+        return this;
+    }
     public CRUDBuilder set(String column, String value) {
         setClause.add(column + " = '" + value + "'");
         return this;

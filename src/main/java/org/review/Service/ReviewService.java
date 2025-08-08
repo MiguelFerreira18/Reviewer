@@ -17,7 +17,7 @@ public class ReviewService {
 
     public void addReview(Review review) {
         CRUDBuilder crudBuilder = new CRUDBuilder();
-        crudBuilder.operation(Operation.INSERT).table("review").values(
+        crudBuilder.operation(Operation.INSERT).table("review").set("title").set("content").set("rating").values(
                 review.getTitle(),
                 review.getContent(),
                 String.valueOf(review.getRating())
@@ -96,6 +96,7 @@ public class ReviewService {
         String query = crudBuilder.build();
         try {
             database.executeQuery(query, Execution.UPDATE);
+            updateTags(reviewId, review.getTag());
             System.out.println("Review updated successfully.");
         } catch (Exception e) {
             System.err.println("Error updating review: " + e.getMessage());
