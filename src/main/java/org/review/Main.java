@@ -7,6 +7,7 @@ import org.review.Database.QueryBuilder;
 import org.review.Database.SQLite;
 import org.review.Logger.LogLevel;
 import org.review.Logger.Logger;
+import org.review.Mapper.ReviewMapper;
 import org.review.Mapper.TagMapper;
 import org.review.Service.ReviewService;
 import org.review.Service.TagService;
@@ -38,13 +39,20 @@ public class Main {
         } catch (Exception e) {
             logger.error("Error starting up the database: " + e.getMessage());
         }
-        scanner.nextInt();
 
         TagService tagService = new TagService(db);
         TagView tagView = new TagView(tagService, scanner);
 
         ReviewService reviewService = new ReviewService(db);
         ReviewView reviewView = new ReviewView(reviewService, tagService,scanner);
+
+
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .select()
+                .from("review");
+        ResultSet rs = db.executeQuery(queryBuilder.build(), Execution.READ);
+        ReviewMapper reviewMapper = new ReviewMapper(db);
+        System.out.println(reviewMapper.mapToReviews(rs).size());
 
 
 

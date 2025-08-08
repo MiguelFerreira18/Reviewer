@@ -6,6 +6,7 @@ import org.review.Model.Review;
 import org.review.Model.Tag;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class ReviewService {
@@ -17,11 +18,16 @@ public class ReviewService {
 
     public void addReview(Review review) {
         CRUDBuilder crudBuilder = new CRUDBuilder();
-        crudBuilder.operation(Operation.INSERT).table("review").set("title").set("content").set("rating").values(
-                review.getTitle(),
-                review.getContent(),
-                String.valueOf(review.getRating())
-        );
+        crudBuilder.operation(Operation.INSERT)
+                .table("review")
+                .set("title")
+                .set("content")
+                .set("rating")
+                .values(
+                        review.getTitle(),
+                        review.getContent(),
+                        String.valueOf(review.getRating())
+                );
         String query = crudBuilder.build();
         try {
             database.executeQuery(query, Execution.UPDATE);
@@ -36,6 +42,8 @@ public class ReviewService {
                 crudBuilder = new CRUDBuilder();
                 crudBuilder.operation(Operation.INSERT)
                         .table("review_tag")
+                        .set("review_id")
+                        .set("tag_id")
                         .values(
                                 String.valueOf(reviewId),
                                 String.valueOf(tag.getId())
@@ -57,8 +65,10 @@ public class ReviewService {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .select("id")
                 .from("review")
-                .where("title = '" + review.getTitle() + "' AND content = '" + review.getContent() + "'"
-                        + " AND rating = " + review.getRating() + " AND created_at = '" + review.getCreatedAt() + "'");
+                .where("title = '" + review.getTitle() + "'")
+                .andWhere("content = '" + review.getContent() + "'")
+                .andWhere("rating = " + review.getRating());
+
         ResultSet rs = database.executeQuery(queryBuilder.build(), Execution.READ);
         try {
             if (rs.next()) {
@@ -88,10 +98,10 @@ public class ReviewService {
         CRUDBuilder crudBuilder = new CRUDBuilder();
         crudBuilder.operation(Operation.UPDATE)
                 .table("review")
-                .set("title",review.getTitle())
+                .set("title", review.getTitle())
                 .set("content", review.getContent())
                 .set("rating", String.valueOf(review.getRating()))
-                .set("updated_at", review.updateDateTime().toString())
+                .set("updated_at", new Timestamp(System.currentTimeMillis()).toString())
                 .where("id = " + reviewId);
         String query = crudBuilder.build();
         try {
@@ -115,6 +125,8 @@ public class ReviewService {
             crudBuilder = new CRUDBuilder();
             crudBuilder.operation(Operation.INSERT)
                     .table("review_tag")
+                    .set("review_id")
+                    .set("tag_id")
                     .values(String.valueOf(reviewId), String.valueOf(tag.getId()));
             String insertQuery = crudBuilder.build();
             database.executeQuery(insertQuery, Execution.UPDATE);
@@ -146,18 +158,19 @@ public class ReviewService {
                 .from("review")
                 .join("review_tag", "review.id = review_tag.review_id", JoinType.INNER)
                 .join("tag", "review_tag.tag_id = tag.id", JoinType.INNER)
-                .where("tag.name = '" + tag + "'");
+                .where("tag.tag_name = '" + tag + "'");
         ResultSet rs = database.executeQuery(queryBuilder.build(), Execution.READ);
         ReviewMapper reviewMapper = new ReviewMapper(database);
 
         return reviewMapper.mapToReviews(rs);
     }
 
-    public List<Review> getFilteredReviewsByDate(String date) {
+    public List<Review> getFilteredReviewsByDate(String date, String endDate) {
+
         QueryBuilder queryBuilder = new QueryBuilder()
                 .select()
                 .from("review")
-                .where("DATE(created_at) = '" + date + "'");
+                .where("DATE(created_at) IN ('" + date + "','" + endDate + "') ");
         ResultSet rs = database.executeQuery(queryBuilder.build(), Execution.READ);
         ReviewMapper reviewMapper = new ReviewMapper(database);
 

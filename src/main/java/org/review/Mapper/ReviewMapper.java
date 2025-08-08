@@ -45,9 +45,29 @@ public class ReviewMapper {
                 .from("review_tag")
                 .where("review_id = " + reviewId);
         ResultSet rs = db.executeQuery(query.build(), Execution.READ);
+        List<Tag> tagList = new ArrayList<>();
 
-        TagMapper tagMapper = new TagMapper();
-        return tagMapper.mapToTags(rs);
+        try {
+            while (rs.next()) {
+                int tagId = rs.getInt("tag_id");
+                QueryBuilder tagQuery = new QueryBuilder()
+                        .select()
+                        .from("tag")
+                        .where("id = " + tagId);
+                ResultSet tagRs = db.executeQuery(tagQuery.build(), Execution.READ);
+                if (tagRs.next()) {
+                    TagMapper tagMapper = new TagMapper();
+                    Tag tag = tagMapper.mapToTag(tagRs);
+                    if (tag != null) {
+                        tagList.add(tag);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getInstance().error("Error retrieving tag IDs for review: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return tagList;
     }
 
     public List<Review> mapToReviews(ResultSet rs) {
@@ -61,6 +81,7 @@ public class ReviewMapper {
                 }
             }
         } catch (SQLException e) {
+            Logger.getInstance().error("Error mapping ResultSet to List<Review>: " + e.getMessage());
             throw new RuntimeException(e);
         }
 

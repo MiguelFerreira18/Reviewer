@@ -22,15 +22,15 @@ public class ReviewView {
     }
 
     public void addReview() {
-        System.out.println("Enter review details:");
+        scanner.nextLine();
         System.out.print("Title: ");
         String title = scanner.nextLine();
         System.out.print("Content: ");
         String content = scanner.nextLine();
-        System.out.print("Rating (1-5): ");
+        System.out.print("Rating (1-10): ");
         int rating = scanner.nextInt();
 
-        scanner.nextLine(); // Consume the newline character left by nextInt()
+        scanner.nextLine();
 
         List<Tag> tags = addTagsToReview();
 
@@ -71,26 +71,43 @@ public class ReviewView {
 
         System.out.println("Select the review you want to update:");
         displayReviews();
-        System.out.print("Enter the review ID to update: ");
+        System.out.print("Enter the review ID to update (-1 to cancel): ");
         int reviewId = scanner.nextInt();
         scanner.nextLine();
+        if (reviewId == -1) {
+            System.out.println("Update cancelled.");
+            return;
+        }
         Review review = reviewService.getReviewById(reviewId);
 
-        System.out.println("Enter new details for the review (leave blank to keep current value):");
-        System.out.print("Title (" + review.getTitle() + "): ");
+        System.out.println("Enter new details for the review (leave blank to keep current value) (-1 to cancel):");
+        System.out.print("Title (" + review.getTitle() + ") (-1 to cancel): ");
         String title = scanner.nextLine();
         if (!title.isEmpty()) {
             review.setTitle(title);
         }
-        System.out.print("Content (" + review.getContent() + "): ");
+        if (title.equals("-1")) {
+            System.out.println("Update cancelled.");
+            return;
+        }
+
+        System.out.print("Content (" + review.getContent() + ") (-1 to cancel): ");
         String content = scanner.nextLine();
         if (!content.isEmpty()) {
             review.setContent(content);
         }
-        System.out.print("Rating (" + review.getRating() + "): ");
+        if (content.equals("-1")) {
+            System.out.println("Update cancelled.");
+            return;
+        }
+        System.out.print("Rating (" + review.getRating() + ") (-1 to cancel): ");
         int rating = scanner.nextInt();
         if (rating > 0 && rating <= 5) {
             review.setRating(rating);
+        }
+        if (rating == -1) {
+            System.out.println("Update cancelled.");
+            return;
         }
 
         scanner.nextLine();
@@ -158,6 +175,8 @@ public class ReviewView {
     }
 
     public List<Review> getReviewsByTag() {
+        scanner.nextLine();
+
         System.out.println("Enter the tag to filter reviews by:");
         String tag = scanner.nextLine();
         if (tag.isEmpty()) {
@@ -216,9 +235,17 @@ public class ReviewView {
             }
         } while (year.isEmpty() || !year.matches("\\d{4}"));
 
-        String date = day + "-" + month + "-" + year;
+        String date = String.format("%04d-%02d-%02d",
+                Integer.parseInt(year),
+                Integer.parseInt(month),
+                Integer.parseInt(day));
+        
+        String plusOneDayDate = String.format("%04d-%02d-%02d",
+                Integer.parseInt(year),
+                Integer.parseInt(month),
+                Integer.parseInt(day) + 1);
 
-        return reviewService.getFilteredReviewsByDate(date);
+        return reviewService.getFilteredReviewsByDate(date, plusOneDayDate);
     }
 
 }

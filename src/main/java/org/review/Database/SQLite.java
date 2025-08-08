@@ -86,6 +86,8 @@ public class SQLite implements DatabaseStrategy {
                 currentStatement.close();
             }
             currentStatement = connection.createStatement();
+            currentStatement.execute("PRAGMA foreign_keys = ON;");
+
             if (execution == Execution.UPDATE) {
                 currentStatement.executeUpdate(query);
                 Logger.getInstance().info("Executed update query: " + query);

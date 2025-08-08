@@ -101,7 +101,7 @@ public class UiManager {
                 reviewView.deleteReview();
                 break;
             case 4:
-                manageReadReviews(choice);
+                manageReadReviews();
                 break;
             case 5:
                 System.out.println("Returning to Main Menu...");
@@ -131,11 +131,12 @@ public class UiManager {
 
     }
 
-    private void manageReadReviews(int choice) {
+    private void manageReadReviews() {
+        sca.nextLine();
+
         boolean isRunning = true;
         do {
             manageReadReviewMenu();
-            manageReadReviewMenuOptions(choice);
             int readChoice = sca.nextInt();
             isRunning = manageReadReviewMenuOptions(readChoice);
         } while (isRunning);

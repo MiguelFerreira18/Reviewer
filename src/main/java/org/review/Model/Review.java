@@ -85,10 +85,6 @@ public class Review {
         return updatedAt;
     }
 
-    public LocalDateTime updateDateTime() {
-        this.updatedAt = Timestamp.valueOf(LocalDateTime.now()).toLocalDateTime();
-        return this.updatedAt;
-    }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
